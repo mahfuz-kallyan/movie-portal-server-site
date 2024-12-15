@@ -30,13 +30,28 @@ async function run() {
     const movieCollection = client.db('movieDB').collection('movies')
 
 
-    app.get('/movies', async(req, res)=>{
+    app.get('/movies', async (req, res) => {
       const cursor = movieCollection.find();
       const result = await cursor.toArray()
       res.send(result)
     })
 
-   
+    // get sorted top 6 movies by rating
+    app.get('/featured', async (req, res) => {
+      const cursor = movieCollection.find().sort({ rating: -1 }).limit(6);
+      const result = await cursor.toArray()
+      res.send(result)
+    })
+
+    // updated movies
+    // app.get('/movies/:id', async (req, res) => {
+    //   const id = req.params.id;
+    //   const query= {_id: new ObjectId(id)}
+    //   const result = await movieCollection.findOne(query);
+    //   res.send(result)
+    // })
+
+
     app.post('/movies', async (req, res) => {
       const newMovie = req.body
       console.log(newMovie);
@@ -44,9 +59,9 @@ async function run() {
       res.send(result)
     })
 
-    app.delete('/movies/:id', async(req, res)=>{
+    app.delete('/movies/:id', async (req, res) => {
       const id = req.params.id;
-      const query = { _id: new ObjectId(id)}
+      const query = { _id: new ObjectId(id) }
       const result = await movieCollection.deleteOne(query)
       res.send(result)
     })
@@ -69,3 +84,5 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Movie Server running on port: ${port}`);
 })
+
+

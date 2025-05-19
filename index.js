@@ -25,9 +25,10 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const movieCollection = client.db('movieDB').collection('movies')
+    const userCollection = client.db('movieDB').collection('users')
 
 
     app.get('/movies', async (req, res) => {
@@ -43,6 +44,7 @@ async function run() {
       res.send(result)
     })
 
+
     // updated movies
     // app.get('/movies/:id', async (req, res) => {
     //   const id = req.params.id;
@@ -54,7 +56,6 @@ async function run() {
 
     app.post('/movies', async (req, res) => {
       const newMovie = req.body
-      console.log(newMovie);
       const result = await movieCollection.insertOne(newMovie)
       res.send(result)
     })
@@ -66,8 +67,20 @@ async function run() {
       res.send(result)
     })
 
+    // users related api
+    app.post('/users', async (req, res) => {
+      const user = req.body;
+      const query = { email: user.email }
+      const existingUser = await userCollection.findOne(query)
+      if (existingUser) {
+        return res.send({message: 'User already exists', insertedId: null})
+      }
+      const result = await userCollection.insertOne(user)
+      res.send(result)
+    })
+
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
